@@ -167,7 +167,7 @@ parser.add_argument('--iter', default=2000, type=int,
                     help='number of iteration')
 parser.add_argument('--lr', default=0.25, type=float,
                     help='learning rate')
-parser.add_argument('--lambda', default=0.05, type=float,
+parser.add_argument('--lam', default=0.05, type=float,
                     help='original image weight / style weight ratio')
 args = parser.parse_args()
 
@@ -190,7 +190,7 @@ W = 435
 img_gogh,_,_ = image_resize(args.style_img, W)
 img_hongo,nw,nh = image_resize(args.orig_img, W)
 
-img_gen = generate_image(img_hongo, img_gogh, W, img_gen=None, max_iter=args.iter, lr=args.lr, alpha=[args.lr * x for x in [0.01,0.01,1,1]], beta=[1,1,1,1])
+img_gen = generate_image(img_hongo, img_gogh, W, img_gen=None, max_iter=args.iter, lr=args.lr, alpha=[args.lam * x for x in [0.01,0.01,1,1]], beta=[1,1,1,1])
 img_resize_inv(img_gen, W, nw, nh)
 
 
