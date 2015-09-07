@@ -98,7 +98,7 @@ def get_matrix(y):
     ch = y.data.shape[1]
     wd = y.data.shape[2]
     gogh_y = F.reshape(y, (ch,wd**2))
-    gogh_matrix = F.matmul(gogh_y, gogh_y, transb=True)
+    gogh_matrix = F.matmul(gogh_y, gogh_y, transb=True)/np.float32(wd**2)
     return gogh_matrix
 
 
@@ -114,8 +114,8 @@ class Clip(chainer.Function):
         return ret
 
 def generate_image(img_orig, img_style, width, nw, nh, max_iter, lr, alpha, beta, img_gen=None):
-    mid_orig = nin_forward(Variable(img_orig))
-    style_mats = [get_matrix(y) for y in nin_forward(Variable(img_style))]
+    mid_orig = vgg_forward(Variable(img_orig))
+    style_mats = [get_matrix(y) for y in vgg_forward(Variable(img_style))]
 
     if img_gen is None:
         if args.gpu >= 0:
@@ -129,7 +129,7 @@ def generate_image(img_orig, img_style, width, nw, nh, max_iter, lr, alpha, beta
     for i in range(max_iter):
 
         x = Variable(img_gen)
-        y = nin_forward(x)
+        y = vgg_forward(x)
 
         optimizer.zero_grads()
         L = Variable(xp.zeros((), dtype=np.float32))
@@ -137,10 +137,10 @@ def generate_image(img_orig, img_style, width, nw, nh, max_iter, lr, alpha, beta
             ch = y[l].data.shape[1]
             wd = y[l].data.shape[2]
             gogh_y = F.reshape(y[l], (ch,wd**2))
-            gogh_matrix = F.matmul(gogh_y, gogh_y, transb=True)
+            gogh_matrix = F.matmul(gogh_y, gogh_y, transb=True)/np.float32(wd**2)
 
-            L1 = np.float32(alpha[l])*F.mean_squared_error(y[l], mid_orig[l])
-            L2 = np.float32(beta[l])*F.mean_squared_error(gogh_matrix, style_mats[l])/np.float32(4*wd**4*ch**2)
+            L1 = np.float32(alpha[l])*F.mean_squared_error(y[l], Variable(mid_orig[l].data))
+            L2 = np.float32(beta[l])*F.mean_squared_error(gogh_matrix, Variable(style_mats[l].data))/np.float32(4)
             L += L1+L2
 
             if i%100==0:
@@ -182,8 +182,10 @@ parser.add_argument('--iter', default=2000, type=int,
                     help='number of iteration')
 parser.add_argument('--lr', default=1.0, type=float,
                     help='learning rate')
-parser.add_argument('--lam', default=0.0001, type=float,
+parser.add_argument('--lam', default=1.0, type=float,
                     help='original image weight / style weight ratio')
+parser.add_argument('--width', '-w', default=435, type=int,
+                    help='image width, height')
 args = parser.parse_args()
 
 try:
@@ -206,7 +208,7 @@ model = func.fs
 if args.gpu>=0:
 	model.to_gpu()
 
-W = 435
+W = args.width
 img_gogh,_,_ = image_resize(args.style_img, W)
 img_hongo,nw,nh = image_resize(args.orig_img, W)
 
