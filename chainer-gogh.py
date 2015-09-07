@@ -52,16 +52,16 @@ def image_resize(img_file, width):
         gogh = subtract_mean(hoge)
     return xp.asarray(gogh), new_w, new_h
 
-def img_resize_inv(img, width, new_w, new_h):
+def save_image(img, width, new_w, new_h, it):
     def to_img(x):
         im = np.zeros((new_h,new_w,3))
         im[:,:,0] = x[2,:,:]
         im[:,:,1] = x[1,:,:]
         im[:,:,2] = x[0,:,:]
-        def crop(a):
+        def clip(a):
             return 0 if a<0 else (255 if a>255 else a)
-        im = np.vectorize(crop)(im).astype(np.uint8)
-        Image.fromarray(im).save(args.out_file)
+        im = np.vectorize(clip)(im).astype(np.uint8)
+        Image.fromarray(im).save(args.out_dir+"/im_%05d.png"%it)
 
     img_cpu = add_mean(img)
     if width==new_w:
@@ -97,8 +97,8 @@ def vgg_forward(x):
 def get_matrix(y):
     ch = y.data.shape[1]
     wd = y.data.shape[2]
-    gogh_y = y.data.reshape((ch,wd**2))/np.float32(wd**2)
-    gogh_matrix = xp.dot(gogh_y, gogh_y.T)
+    gogh_y = F.reshape(y, (ch,wd**2))
+    gogh_matrix = F.matmul(gogh_y, gogh_y, transb=True)
     return gogh_matrix
 
 
@@ -113,7 +113,7 @@ class Clip(chainer.Function):
             ''','clip')(x)
         return ret
 
-def generate_image(img_orig, img_style, width, max_iter=200, lr=0.25, alpha=[0.0005,0.005,0.05,0.05], beta=[1,1,1,1], img_gen=None):
+def generate_image(img_orig, img_style, width, nw, nh, max_iter, lr, alpha, beta, img_gen=None):
     mid_orig = nin_forward(Variable(img_orig))
     style_mats = [get_matrix(y) for y in nin_forward(Variable(img_style))]
 
@@ -132,21 +132,22 @@ def generate_image(img_orig, img_style, width, max_iter=200, lr=0.25, alpha=[0.0
         y = nin_forward(x)
 
         optimizer.zero_grads()
+        L = Variable(xp.zeros((), dtype=np.float32))
         for l in range(4):
             ch = y[l].data.shape[1]
             wd = y[l].data.shape[2]
-            gogh_y = y[l].data.reshape((ch,wd**2))/np.float32(wd**2)
-            gogh_matrix = xp.dot(gogh_y, gogh_y.T)
-            g1 = np.float32(alpha[l])*(y[l].data - mid_orig[l].data)
-            g2 = np.float32(beta[l])*(xp.dot(gogh_matrix - style_mats[l], gogh_y).reshape((1,ch,wd,wd)))
+            gogh_y = F.reshape(y[l], (ch,wd**2))
+            gogh_matrix = F.matmul(gogh_y, gogh_y, transb=True)
 
-            y[l].grad = g1+g2
-            y[l].backward()
-            xg += x.grad
+            L1 = np.float32(alpha[l])*F.mean_squared_error(y[l], mid_orig[l])
+            L2 = np.float32(beta[l])*F.mean_squared_error(gogh_matrix, style_mats[l])/np.float32(4*wd**4*ch**2)
+            L += L1+L2
 
             if i%100==0:
-                print(i, l, np.mean(xg**2), np.mean((y[l].data - mid_orig[l].data)**2), np.mean((gogh_matrix - style_mats[l])**2))
-        #img_gen -= (xg)*np.float32(lr)
+                print i,l,L1.data.get(),L2.data.get()
+
+        L.backward()
+        xg += x.grad
         optimizer.update()
 
         tmp_shape = img_gen.shape
@@ -157,30 +158,38 @@ def generate_image(img_orig, img_style, width, max_iter=200, lr=0.25, alpha=[0.0
                 return -100 if x<-100 else (100 if x>100 else x)
             img_gen += np.vectorize(clip)(img_gen).reshape(tmp_shape) - img_gen
 
+        if i%50==0:
+            save_image(img_gen.get(), W, nw, nh, i)
+
     return img_gen.get()
 
 
 
 
 parser = argparse.ArgumentParser(
-    description='Learning convnet from ILSVRC2012 dataset')
+    description='A Neural Algorithm of Artistic Style')
 parser.add_argument('--model', '-m', default='nin_imagenet.caffemodel',
                     help='model file')
 parser.add_argument('--orig_img', '-i', default='orig.png',
                     help='Original image')
 parser.add_argument('--style_img', '-s', default='style.png',
                     help='Style image')
-parser.add_argument('--out_file', '-o', default='output.png',
-                    help='Output image')
+parser.add_argument('--out_dir', '-o', default='output',
+                    help='Output directory')
 parser.add_argument('--gpu', '-g', default=-1, type=int,
                     help='GPU ID (negative value indicates CPU)')
 parser.add_argument('--iter', default=2000, type=int,
                     help='number of iteration')
-parser.add_argument('--lr', default=0.25, type=float,
+parser.add_argument('--lr', default=1.0, type=float,
                     help='learning rate')
-parser.add_argument('--lam', default=0.05, type=float,
+parser.add_argument('--lam', default=0.0001, type=float,
                     help='original image weight / style weight ratio')
 args = parser.parse_args()
+
+try:
+    os.mkdir(args.out_dir)
+except:
+    pass
 
 if args.gpu >= 0:
 	cuda.check_cuda_available()
@@ -201,5 +210,4 @@ W = 435
 img_gogh,_,_ = image_resize(args.style_img, W)
 img_hongo,nw,nh = image_resize(args.orig_img, W)
 
-img_gen = generate_image(img_hongo, img_gogh, W, img_gen=None, max_iter=args.iter, lr=args.lr, alpha=[args.lam * x for x in [0.01,0.01,1,1]], beta=[1,1,1,1])
-img_resize_inv(img_gen, W, nw, nh)
+img_gen = generate_image(img_hongo, img_gogh, W, nw, nh, img_gen=None, max_iter=args.iter, lr=args.lr, alpha=[args.lam * x for x in [0.01,0.01,1,1]], beta=[1,1,1,1])
