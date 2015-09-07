@@ -10,7 +10,7 @@ import chainer
 from chainer import cuda
 import chainer.functions as F
 from chainer.functions import caffe
-from chainer import Variable
+from chainer import Variable, optimizers
 
 import pickle
 
@@ -88,9 +88,9 @@ def vgg_forward(x):
     y3 = model.conv3_3(F.relu(model.conv3_2(F.relu(model.conv3_1(x2)))))
     x3 = F.average_pooling_2d(F.relu(y3), 2, stride=2)
     y4 = model.conv4_3(F.relu(model.conv4_2(F.relu(model.conv4_1(x3)))))
-    x4 = F.average_pooling_2d(F.relu(y4), 2, stride=2)
-    y5 = model.conv5_3(F.relu(model.conv5_2(F.relu(model.conv5_1(x4)))))
-    return [y1,y2,y3,y4,y5]
+#    x4 = F.average_pooling_2d(F.relu(y4), 2, stride=2)
+#    y5 = model.conv5_3(F.relu(model.conv5_2(F.relu(model.conv5_1(x4)))))
+    return [y1,y2,y3,y4]
 
 
 
@@ -113,20 +113,25 @@ class Clip(chainer.Function):
             ''','clip')(x)
         return ret
 
-def generate_image(img_orig, img_style, width, max_iter=2000, lr=0.25, alpha=[0.0005,0.005,0.05,0.05], beta=[1,1,1,1], img_gen=None):
+def generate_image(img_orig, img_style, width, max_iter=200, lr=0.25, alpha=[0.0005,0.005,0.05,0.05], beta=[1,1,1,1], img_gen=None):
     mid_orig = nin_forward(Variable(img_orig))
     style_mats = [get_matrix(y) for y in nin_forward(Variable(img_style))]
-    
+
     if img_gen is None:
-        img_gen = xp.random.uniform(-20,20,(1,3,width,width),dtype=np.float32)
+        if args.gpu >= 0:
+            img_gen = xp.random.uniform(-20,20,(1,3,width,width),dtype=np.float32)
+        else:
+            img_gen = np.random.uniform(-20,20,(1,3,width,width)).astype(np.float32)
     x = Variable(img_gen)
     xg = xp.zeros_like(x.data)
+    optimizer = optimizers.Adam(alpha=lr)
+    optimizer.setup((img_gen,xg))
     for i in range(max_iter):
-        
+
         x = Variable(img_gen)
         y = nin_forward(x)
 
-        xg *= 0.0
+        optimizer.zero_grads()
         for l in range(4):
             ch = y[l].data.shape[1]
             wd = y[l].data.shape[2]
@@ -134,18 +139,24 @@ def generate_image(img_orig, img_style, width, max_iter=2000, lr=0.25, alpha=[0.
             gogh_matrix = xp.dot(gogh_y, gogh_y.T)
             g1 = np.float32(alpha[l])*(y[l].data - mid_orig[l].data)
             g2 = np.float32(beta[l])*(xp.dot(gogh_matrix - style_mats[l], gogh_y).reshape((1,ch,wd,wd)))
-            
+
             y[l].grad = g1+g2
             y[l].backward()
             xg += x.grad
-            
+
             if i%100==0:
                 print(i, l, np.mean(xg**2), np.mean((y[l].data - mid_orig[l].data)**2), np.mean((gogh_matrix - style_mats[l])**2))
-        img_gen -= (xg)*np.float32(lr)
-        
+        #img_gen -= (xg)*np.float32(lr)
+        optimizer.update()
+
         tmp_shape = img_gen.shape
-        img_gen = Clip().forward(img_gen).reshape(tmp_shape)
-            
+        if args.gpu >= 0:
+            img_gen += Clip().forward(img_gen).reshape(tmp_shape) - img_gen
+        else:
+            def clip(x):
+                return -100 if x<-100 else (100 if x>100 else x)
+            img_gen += np.vectorize(clip)(img_gen).reshape(tmp_shape) - img_gen
+
     return img_gen.get()
 
 
@@ -192,7 +203,3 @@ img_hongo,nw,nh = image_resize(args.orig_img, W)
 
 img_gen = generate_image(img_hongo, img_gogh, W, img_gen=None, max_iter=args.iter, lr=args.lr, alpha=[args.lam * x for x in [0.01,0.01,1,1]], beta=[1,1,1,1])
 img_resize_inv(img_gen, W, nw, nh)
-
-
-
-
