@@ -180,11 +180,11 @@ parser.add_argument('--out_dir', '-o', default='output',
                     help='Output directory')
 parser.add_argument('--gpu', '-g', default=-1, type=int,
                     help='GPU ID (negative value indicates CPU)')
-parser.add_argument('--iter', default=2000, type=int,
+parser.add_argument('--iter', default=5000, type=int,
                     help='number of iteration')
-parser.add_argument('--lr', default=1.0, type=float,
+parser.add_argument('--lr', default=4.0, type=float,
                     help='learning rate')
-parser.add_argument('--lam', default=0.1, type=float,
+parser.add_argument('--lam', default=0.005, type=float,
                     help='original image weight / style weight ratio')
 parser.add_argument('--width', '-w', default=435, type=int,
                     help='image width, height')
@@ -214,5 +214,4 @@ W = args.width
 img_gogh,_,_ = image_resize(args.style_img, W)
 img_hongo,nw,nh = image_resize(args.orig_img, W)
 
-generate_image(img_hongo, img_gogh, W, nw, nh, img_gen=None, max_iter=args.iter, lr=args.lr, alpha=[args.lam * x for x in [0.01,0.01,1,1]], beta=[1,1,1,1])
-
+generate_image(img_hongo, img_gogh, W, nw, nh, img_gen=None, max_iter=args.iter, lr=args.lr, alpha=[args.lam * x for x in [0,0,1,1]], beta=[1,1,1,1])
