@@ -2,10 +2,6 @@
 
 ## Implementation of "A neural algorithm of Artistic style" (http://arxiv.org/abs/1508.06576)
 
-- pip install chainer
-- download network-in-network caffemodel from  https://gist.github.com/mavenlin/d802a5849de39225bcc6  (wget https://www.dropbox.com/s/0cidxafrb2wuwxw/nin_imagenet.caffemodel?dl=1 -O nin_imagenet.caffemodel)
-- python chainer-gogh.py -i input.png -s style.png -o output.png -g 0
-
 <img src="https://raw.githubusercontent.com/mattya/chainer-gogh/master/sample_images/cat.png" height="150px">
 
 
@@ -30,10 +26,18 @@
 <img src="https://raw.githubusercontent.com/mattya/chainer-gogh/master/sample_images/im7.png" height="150px">
 
 ## Usage:
-# モデルをダウンロード
+### Chainerをインストール
+```
+pip install chainer
+```
+詳しくはhttps://github.com/pfnet/chainer
+
+### モデルをダウンロード
 * NIN https://gist.github.com/mavenlin/d802a5849de39225bcc6
+
 お手軽
 * VGG https://gist.github.com/ksimonyan/211839e770f7b538e2d8#file-readme-md
+
 きれいな絵がかけるがとても重い。
 VGGを使う際は、コード内のnin_forwardをvgg_forwardに書き換え、実行時に`-m VGG_ILSVRC_16_layers.caffemodel --width 256`を付ける。
 
