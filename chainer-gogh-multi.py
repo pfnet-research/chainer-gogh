@@ -84,6 +84,8 @@ def nin_forward(x):
     x3 = F.relu(getattr(model,"conv4-1024")(F.dropout(F.average_pooling_2d(F.relu(y3), 3, stride=2), train=False)))
     return [y0,x1,x2,x3]
 
+
+
 def vgg_forward(x):
     y1 = model.conv1_2(F.relu(model.conv1_1(x)))
     x1 = F.average_pooling_2d(F.relu(y1), 2, stride=2)
@@ -119,8 +121,8 @@ class Clip(chainer.Function):
 
 def generate_image(img_orig, img_style, width, nw, nh, max_iter, lr, alpha, beta, img_gen=None):
     batch_size = img_orig.shape[0]
-    mid_orig = nin_forward(Variable(img_orig))
-    style_mats = [get_matrix(y) for y in nin_forward(Variable(img_style))]
+    mid_orig = vgg_forward(Variable(img_orig, volatile=True))
+    style_mats = [get_matrix(y) for y in vgg_forward(Variable(img_style, volatile=True))]
 
     if img_gen is None:
         if args.gpu >= 0:
@@ -134,17 +136,17 @@ def generate_image(img_orig, img_style, width, nw, nh, max_iter, lr, alpha, beta
     for i in range(max_iter):
 
         x = Variable(img_gen)
-        y = nin_forward(x)
+        y = vgg_forward(x)
 
         optimizer.zero_grads()
         L = Variable(xp.zeros((), dtype=np.float32))
-        for l in range(4):
+        for l in range(len(y)):
             gogh_matrix = get_matrix(y[l])
             L1 = np.float32(alpha[l])*F.mean_squared_error(y[l], Variable(mid_orig[l].data))
             L2 = np.float32(beta[l])*F.mean_squared_error(gogh_matrix, Variable(style_mats[l].data))/np.float32(4)
             L += L1+L2
 
-            if i%500==0:
+            if i%50==0:
                 print i,l,L1.data,L2.data
 
         L.backward()
@@ -160,7 +162,7 @@ def generate_image(img_orig, img_style, width, nw, nh, max_iter, lr, alpha, beta
             img_gen += np.vectorize(clip)(img_gen).reshape(tmp_shape) - img_gen
         '''
 
-        if i%500==0:
+        if i%50==0:
             for j in range(img_gen.shape[0]):
                 save_image(img_gen[j], W, nw[j], nh[j], args.out_dir+"%d/im_%05d.png"%(j,i))
 
@@ -178,11 +180,11 @@ parser.add_argument('--out_dir', '-o', default='output',
                     help='Output directory')
 parser.add_argument('--gpu', '-g', default=-1, type=int,
                     help='GPU ID (negative value indicates CPU)')
-parser.add_argument('--iter', default=2000, type=int,
+parser.add_argument('--iter', default=5000, type=int,
                     help='number of iteration')
-parser.add_argument('--lr', default=1.0, type=float,
+parser.add_argument('--lr', default=4.0, type=float,
                     help='learning rate')
-parser.add_argument('--lam', default=0.1, type=float,
+parser.add_argument('--lam', default=0.005, type=float,
                     help='original image weight / style weight ratio')
 parser.add_argument('--width', '-w', default=435, type=int,
                     help='image width, height')
@@ -197,6 +199,7 @@ else:
 
 
 chainer.Function.type_check_enable = False
+print "cuda.cudnn_enabled = "+str(cuda.cudnn_enabled)
 print "load model... %s"%args.model
 func = caffe.CaffeFunction(args.model)
 model = func.fs
@@ -223,4 +226,4 @@ for i in range(len(input_data)):
     nw.append(w_)
     nh.append(h_)
 
-generate_image(img_orig, img_style, W, nw, nh, img_gen=None, max_iter=args.iter, lr=args.lr, alpha=[args.lam * x for x in [0,0,1,1]], beta=[0.2,0.4,1,1])
+generate_image(img_orig, img_style, W, nw, nh, img_gen=None, max_iter=args.iter, lr=args.lr, alpha=[args.lam * x for x in [0,0,1,1]], beta=[1,1,1,1])
