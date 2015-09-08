@@ -25,6 +25,8 @@
 <img src="https://raw.githubusercontent.com/mattya/chainer-gogh/master/sample_images/style_7.png" height="150px">
 <img src="https://raw.githubusercontent.com/mattya/chainer-gogh/master/sample_images/im7.png" height="150px">
 
+(VGG, lam=0.0075, after 5000 iteration)
+
 ## Usage:
 ### Chainerをインストール
 ```
