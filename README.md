@@ -19,7 +19,7 @@
 <img src="https://raw.githubusercontent.com/mattya/chainer-gogh/master/sample_images/style_3.png" height="200px">
 <img src="https://raw.githubusercontent.com/mattya/chainer-gogh/master/sample_images/im3.png" height="200px">
 
-<img src="https://raw.githubusercontent.com/mattya/chainer-gogh/master/sample_images/style_4.png" height="200px">
+<img src="https://raw.githubusercontent.com/mattya/chainer-gogh/master/sample_images/style_4.jpg" height="200px">
 <img src="https://raw.githubusercontent.com/mattya/chainer-gogh/master/sample_images/im4.png" height="200px">
 <img src="https://raw.githubusercontent.com/mattya/chainer-gogh/master/sample_images/style_5.png" height="200px">
 <img src="https://raw.githubusercontent.com/mattya/chainer-gogh/master/sample_images/im5.png" height="200px">
