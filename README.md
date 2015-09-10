@@ -1,6 +1,7 @@
 # chainer-gogh
 
 ## Implementation of "A neural algorithm of Artistic style" (http://arxiv.org/abs/1508.06576)
+## 解説記事: https://research.preferred.jp/2015/09/chainer-gogh/
 
 <img src="https://raw.githubusercontent.com/mattya/chainer-gogh/master/sample_images/cat.png" height="150px">
 
