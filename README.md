@@ -44,20 +44,35 @@ pip install chainer
 きれいな絵がかけるがとても重い。
 VGGを使う際は、コード内のnin_forwardをvgg_forwardに書き換え、実行時に`-m VGG_ILSVRC_16_layers.caffemodel --width 256`を付ける。
 
+* GoogLeNet https://github.com/BVLC/caffe/tree/master/models/bvlc_googlenet
+
+NIN並に軽く、ポテンシャルもあるはずだが、最適なパラメタがわかっていない。
+
+* illustration2vec http://illustration2vec.net/   (pre-trained model for tag prediction, version 2.0)
+
+VGGより軽く、二次元画像にとても強いはずだが、最適なパラメタがわかってない。
+
 ### CPU実行
 ```
-python chainer-gogh.py -i input.png -s style.png -o output.png -g -1
+python chainer-gogh.py -m nin -i input.png -s style.png -o output.png -g -1
 ```
 
 ### GPU実行
 ```
-python chainer-gogh.py -i input.png -s style.png -o output.png -g GPU番号
+python chainer-gogh.py -m nin -i input.png -s style.png -o output.png -g GPU番号
 ```
 
 ### VGG実行サンプル
 ```
-python chainer-gogh.py -i input.png -s style.png -o output.png -g 0 -m VGG_ILSVRC_16_layers.caffemodel --width 256
+python chainer-gogh.py -m vgg -i input.png -s style.png -o output.png -g 0 --width 256
 ```
+
+### モデルの指定方法
+```
+-m nin
+```
+のninを、vgg, googlenet, i2vに切り替えることが可能。
+モデルファイルはディレクトリ直下に置いて、デフォルトの名前のまま変えないこと。
 
 ### 複数枚同時生成
 * まず、input.txtというファイル名で、以下の様なファイルを作る。
@@ -75,6 +90,7 @@ VGGを使うときはGPUのメモリ不足に注意
 ## パラメタについて
 * `--lr`: 学習速度。生成の進捗が遅い時は大きめにする
 * `--lam`: これを上げるとinput画像に近くなり、下げるとstyle画像に近くなる
+* alpha, beta: 各層から伝播させる誤差にかかる係数。models.pyの中でハードコードされている。
 
 ## 注意
 * 現在のところ画像は正方形に近いほうがいいです
