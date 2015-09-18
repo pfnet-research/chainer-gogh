@@ -38,19 +38,18 @@ pip install chainer
 ### モデルをダウンロード
 * NIN https://gist.github.com/mavenlin/d802a5849de39225bcc6
 
-お手軽
+お手軽。(`-m nin`)
 * VGG https://gist.github.com/ksimonyan/211839e770f7b538e2d8#file-readme-md
 
-きれいな絵がかけるがとても重い。
-VGGを使う際は、コード内のnin_forwardをvgg_forwardに書き換え、実行時に`-m VGG_ILSVRC_16_layers.caffemodel --width 256`を付ける。
+きれいな絵がかけるがとても重い。(`-m vgg`)
 
 * GoogLeNet https://github.com/BVLC/caffe/tree/master/models/bvlc_googlenet
 
-NIN並に軽く、ポテンシャルもあるはずだが、最適なパラメタがわかっていない。
+NIN並に軽く、ポテンシャルもあるはずだが、最適なパラメタがわかっていない。(`-m googlenet`)
 
 * illustration2vec http://illustration2vec.net/   (pre-trained model for tag prediction, version 2.0)
 
-VGGより軽く、二次元画像にとても強いはずだが、最適なパラメタがわかってない。
+VGGより軽く、二次元画像にとても強いはずだが、最適なパラメタがわかってない。(`-m i2v`)
 
 ### CPU実行
 ```
