@@ -68,7 +68,7 @@ class I2V:
         return [y1,y2,y3,y4,y5,y6]
 
 class GoogLeNet:
-    def __init__(self, fn="bvlc_googlenet.caffemodel", alpha=[0,0,0,0.1,1,10], beta=[0.01,1,10,100,1000,10000]):
+    def __init__(self, fn="bvlc_googlenet.caffemodel", alpha=[0,0,0,0,1,10], beta=[0.00005, 5, 50, 50, 5000, 500000]):
         print "load model... %s"%fn
         func = caffe.CaffeFunction(fn)
         self.model = func.fs
