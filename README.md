@@ -53,17 +53,17 @@ VGGより軽く、二次元画像にとても強いはずだが、最適なパ�
 
 ### CPU実行
 ```
-python chainer-gogh.py -m nin -i input.png -s style.png -o output.png -g -1
+python chainer-gogh.py -m nin -i input.png -s style.png -o output_dir -g -1
 ```
 
 ### GPU実行
 ```
-python chainer-gogh.py -m nin -i input.png -s style.png -o output.png -g GPU番号
+python chainer-gogh.py -m nin -i input.png -s style.png -o output_dir -g GPU番号
 ```
 
 ### VGG実行サンプル
 ```
-python chainer-gogh.py -m vgg -i input.png -s style.png -o output.png -g 0 --width 256
+python chainer-gogh.py -m vgg -i input.png -s style.png -o output_dir -g 0 --width 256
 ```
 
 ### モデルの指定方法
