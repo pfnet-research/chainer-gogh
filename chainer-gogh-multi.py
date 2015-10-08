@@ -103,7 +103,7 @@ def generate_image(img_orig, img_style, width, nw, nh, max_iter, lr, img_gen=Non
             img_gen = xp.random.uniform(-20,20,(batch_size,3,width,width),dtype=np.float32)
             img_gen[:,:,:,:] = img_gen_
         else:
-            img_gen = np.random.uniform(-20,20,(batch_size,3,width,width)).astype(np.float32)
+            img_gen_ = np.random.uniform(-20,20,(3,width,width)).astype(np.float32)
             img_gen = np.random.uniform(-20,20,(batch_size,3,width,width)).astype(np.float32)
             img_gen[:,:,:,:] = img_gen_
     x = Variable(img_gen)
