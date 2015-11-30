@@ -9,6 +9,7 @@ from PIL import Image
 import chainer
 from chainer import cuda
 import chainer.functions as F
+import chainer.links
 from chainer.functions import caffe
 from chainer import Variable, optimizers
 
@@ -104,16 +105,15 @@ def generate_image(img_orig, img_style, width, nw, nh, max_iter, lr, img_gen=Non
             img_gen = xp.random.uniform(-20,20,(1,3,width,width),dtype=np.float32)
         else:
             img_gen = np.random.uniform(-20,20,(1,3,width,width)).astype(np.float32)
-    x = Variable(img_gen)
-    xg = xp.zeros_like(x.data)
+    img_gen = chainer.links.Parameter(img_gen)
     optimizer = optimizers.Adam(alpha=lr)
-    optimizer.setup((img_gen,xg))
+    optimizer.setup(img_gen)
     for i in range(max_iter):
+        img_gen.zerograds()
 
-        x = Variable(img_gen)
+        x = img_gen.W
         y = nn.forward(x)
 
-        optimizer.zero_grads()
         L = Variable(xp.zeros((), dtype=np.float32))
         for l in range(len(y)):
             ch = y[l].data.shape[1]
@@ -129,19 +129,19 @@ def generate_image(img_orig, img_style, width, nw, nh, max_iter, lr, img_gen=Non
                 print i,l,L1.data,L2.data
 
         L.backward()
-        xg += x.grad
+	img_gen.W.grad = x.grad
         optimizer.update()
 
-        tmp_shape = img_gen.shape
+        tmp_shape = x.data.shape
         if args.gpu >= 0:
-            img_gen += Clip().forward(img_gen).reshape(tmp_shape) - img_gen
+            img_gen.W.data += Clip().forward(img_gen.W.data).reshape(tmp_shape) - img_gen.W.data
         else:
             def clip(x):
                 return -120 if x<-120 else (136 if x>136 else x)
-            img_gen += np.vectorize(clip)(img_gen).reshape(tmp_shape) - img_gen
+            img_gen.W.data += np.vectorize(clip)(img_gen.W.data).reshape(tmp_shape) - img_gen.W.data
 
         if i%50==0:
-            save_image(img_gen, W, nw, nh, i)
+            save_image(img_gen.W.data, W, nw, nh, i)
 
 
 parser = argparse.ArgumentParser(

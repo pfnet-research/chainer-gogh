@@ -9,8 +9,7 @@ from chainer import Variable, optimizers
 class NIN:
     def __init__(self, fn="nin_imagenet.caffemodel", alpha=[0,0,1,1], beta=[1,1,1,1]):
         print "load model... %s"%fn
-        func = caffe.CaffeFunction(fn)
-        self.model = func.fs
+        self.model = caffe.CaffeFunction(fn)
         self.alpha = alpha
         self.beta = beta
     def forward(self, x):
@@ -26,8 +25,7 @@ class NIN:
 class VGG:
     def __init__(self, fn="VGG_ILSVRC_16_layers.caffemodel", alpha=[0,0,1,1], beta=[1,1,1,1]):
         print "load model... %s"%fn
-        func = caffe.CaffeFunction(fn)
-        self.model = func.fs
+        self.model = caffe.CaffeFunction(fn)
         self.alpha = alpha
         self.beta = beta
     def forward(self, x):
@@ -45,8 +43,7 @@ class VGG:
 class I2V:
     def __init__(self, fn="illust2vec_tag_ver200.caffemodel", alpha=[0,0,0,1,10,100], beta=[0.1,1,1,10,100,1000]):
         print "load model... %s"%fn
-        func = caffe.CaffeFunction(fn)
-        self.model = func.fs
+        self.model = caffe.CaffeFunction(fn)
         self.alpha = alpha
         self.beta = beta
 #        self.pool_func = F.max_pooling_2d
@@ -70,8 +67,7 @@ class I2V:
 class GoogLeNet:
     def __init__(self, fn="bvlc_googlenet.caffemodel", alpha=[0,0,0,0,1,10], beta=[0.00005, 5, 50, 50, 5000, 500000]):
         print "load model... %s"%fn
-        func = caffe.CaffeFunction(fn)
-        self.model = func.fs
+        self.model = caffe.CaffeFunction(fn)
         self.alpha = alpha
         self.beta = beta
 #        self.pool_func = F.max_pooling_2d
