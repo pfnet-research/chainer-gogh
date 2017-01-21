@@ -125,7 +125,7 @@ def generate_image(img_orig, img_style, width, nw, nh, max_iter, lr, img_gen=Non
             L += L1+L2
 
             if i%100==0:
-                print i,l,L1.data,L2.data
+                print (i,l,L1.data,L2.data)
 
         L.backward()
         xg += x.grad
@@ -197,7 +197,7 @@ elif 'i2v' in args.model:
 elif 'googlenet' in args.model:
     nn = GoogLeNet()
 else:
-    print 'invalid model name. you can use (nin, vgg, i2v, googlenet)'
+    print ('invalid model name. you can use (nin, vgg, i2v, googlenet)')
 if args.gpu>=0:
 	nn.model.to_gpu()
 
