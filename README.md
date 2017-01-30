@@ -41,7 +41,8 @@ pip install chainer
 お手軽。(`-m nin`)
 * VGG https://gist.github.com/ksimonyan/211839e770f7b538e2d8#file-readme-md
 
-きれいな絵がかけるがとても重い。(`-m vgg`)
+きれいな絵がかけるがとても重い。(`-m vgg`, `-m vgg_chainer`)
+vgg_chainerではモデルのダウンロードの必要はなく、初回を除いて非常に高速でロードできるようになります(chainer 1.19以降で動作)。
 
 * GoogLeNet https://github.com/BVLC/caffe/tree/master/models/bvlc_googlenet
 
@@ -63,14 +64,14 @@ python chainer-gogh.py -m nin -i input.png -s style.png -o output_dir -g GPU番�
 
 ### VGG実行サンプル
 ```
-python chainer-gogh.py -m vgg -i input.png -s style.png -o output_dir -g 0 --width 256
+python chainer-gogh.py -m vgg_chainer -i input.png -s style.png -o output_dir -g 0 --width 256
 ```
 
 ### モデルの指定方法
 ```
 -m nin
 ```
-のninを、vgg, googlenet, i2vに切り替えることが可能。
+のninを、vgg, vgg_chainer, googlenet, i2vに切り替えることが可能。
 モデルファイルはディレクトリ直下に置いて、デフォルトの名前のまま変えないこと。
 
 ### 複数枚同時生成
