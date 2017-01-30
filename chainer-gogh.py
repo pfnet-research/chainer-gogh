@@ -181,14 +181,16 @@ else:
 
 if 'nin' in args.model:
     nn = NIN()
-elif 'vgg' in args.model:
+elif 'vgg' == args.model:
     nn = VGG()
+elif 'vgg_chainer' == args.model:
+    nn = VGG_chainer()
 elif 'i2v' in args.model:
     nn = I2V()
 elif 'googlenet' in args.model:
     nn = GoogLeNet()
 else:
-    print ('invalid model name. you can use (nin, vgg, i2v, googlenet)')
+    print ('invalid model name. you can use (nin, vgg, vgg_chainer, i2v, googlenet)')
 if args.gpu>=0:
     nn.model.to_gpu()
 
