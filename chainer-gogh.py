@@ -37,7 +37,7 @@ def image_resize(img_file, width):
     orig_w, orig_h = gogh.size[0], gogh.size[1]
     if orig_w>orig_h:
         new_w = width
-        new_h = width*orig_h/orig_w
+        new_h = width*orig_h//orig_w
         gogh = np.asarray(gogh.resize((new_w,new_h)))[:,:,:3].transpose(2, 0, 1)[::-1].astype(np.float32)
         gogh = gogh.reshape((1,3,new_h,new_w))
         print("image resized to: ", gogh.shape)
@@ -45,7 +45,7 @@ def image_resize(img_file, width):
         hoge[0,:,width-new_h:,:] = gogh[0,:,:,:]
         gogh = subtract_mean(hoge)
     else:
-        new_w = width*orig_w/orig_h
+        new_w = width*orig_w//orig_h
         new_h = width
         gogh = np.asarray(gogh.resize((new_w,new_h)))[:,:,:3].transpose(2, 0, 1)[::-1].astype(np.float32)
         gogh = gogh.reshape((1,3,new_h,new_w))
@@ -126,10 +126,10 @@ def generate_image(img_orig, img_style, width, nw, nh, max_iter, lr, img_gen=Non
             L += L1+L2
 
             if i%100==0:
-                print (i,l,L1.data,L2.data)
+                print(i,l,L1.data,L2.data)
 
         L.backward()
-	img_gen.W.grad = x.grad
+        img_gen.W.grad = x.grad
         optimizer.update()
 
         tmp_shape = x.data.shape
@@ -190,7 +190,7 @@ elif 'googlenet' in args.model:
 else:
     print ('invalid model name. you can use (nin, vgg, i2v, googlenet)')
 if args.gpu>=0:
-	nn.model.to_gpu()
+    nn.model.to_gpu()
 
 W = args.width
 img_content,nw,nh = image_resize(args.orig_img, W)
