@@ -1,5 +1,5 @@
 # chainer-gogh
-Implementation of "A neural algorithm of Artistic style" (http://arxiv.org/abs/1508.06576) in Chainer.
+Implementation of "A neural algorithm of Artistic style" (http://arxiv.org/abs/1508.06576) in Chainer. The Japanese readme can be found [here](README-ja.md).
 ## Accompanying article: https://research.preferred.jp/2015/09/chainer-gogh/
 
 <img src="https://raw.githubusercontent.com/mattya/chainer-gogh/master/sample_images/cat.png" height="150px">
