@@ -1,6 +1,7 @@
 # chainer-gogh
-Implementation of "A neural algorithm of Artistic style" (http://arxiv.org/abs/1508.06576) in Chainer. The Japanese readme can be found [here](README-ja.md).
-## Accompanying article: https://research.preferred.jp/2015/09/chainer-gogh/
+
+## Implementation of "A neural algorithm of Artistic style" (http://arxiv.org/abs/1508.06576)
+## 解説記事: https://research.preferred.jp/2015/09/chainer-gogh/
 
 <img src="https://raw.githubusercontent.com/mattya/chainer-gogh/master/sample_images/cat.png" height="150px">
 
@@ -25,72 +26,71 @@ Implementation of "A neural algorithm of Artistic style" (http://arxiv.org/abs/1
 <img src="https://raw.githubusercontent.com/mattya/chainer-gogh/master/sample_images/style_7.png" height="150px">
 <img src="https://raw.githubusercontent.com/mattya/chainer-gogh/master/sample_images/im7.png" height="150px">
 
-(VGG, lam=0.0075, after 5000 iterations)
+(VGG, lam=0.0075, after 5000 iteration)
 
 ## Usage:
-### Install Chainer
+### Chainerをインストール
 ```
 pip install chainer
 ```
-See https://github.com/pfnet/chainer for details.
+詳しくはhttps://github.com/pfnet/chainer
 
-### Download the model(s)
-There are multiple models to chose from:
+### モデルをダウンロード
 * NIN https://gist.github.com/mavenlin/d802a5849de39225bcc6
 
-Simply specify: (`-m nin`)
+お手軽。(`-m nin`)
 * VGG https://gist.github.com/ksimonyan/211839e770f7b538e2d8#file-readme-md
 
-With VGG, it takes a long time to make good looking images. (`-m vgg`, `-m vgg_chainer`)
-
-After downloading and using the vgg_chainer model for the first time, all subsequent uses will load the model very fast.(functionality available in chainer 1.19 and above).
+きれいな絵がかけるがとても重い。(`-m vgg`, `-m vgg_chainer`)
+vgg_chainerではモデルのダウンロードの必要はなく、初回を除いて非常に高速でロードできるようになります(chainer 1.19以降で動作)。
 
 * GoogLeNet https://github.com/BVLC/caffe/tree/master/models/bvlc_googlenet
 
-About the same as NIN, but there should be potential for good images. The optimum parameters are unknown. (`-m googlenet`)
+NIN並に軽く、ポテンシャルもあるはずだが、最適なパラメタがわかっていない。(`-m googlenet`)
 
 * illustration2vec http://illustration2vec.net/   (pre-trained model for tag prediction, version 2.0)
 
-Lightweight compared to VGG, should be good for illustrations/anime drawings. Optimal parameters are unknown. (`-m i2v`)
+VGGより軽く、二次元画像にとても強いはずだが、最適なパラメタがわかってない。(`-m i2v`)
 
-### Run on CPU
+### CPU実行
 ```
 python chainer-gogh.py -m nin -i input.png -s style.png -o output_dir -g -1
 ```
 
-### Run on GPU
+### GPU実行
 ```
-python chainer-gogh.py -m nin -i input.png -s style.png -o output_dir -g <GPU number>
+python chainer-gogh.py -m nin -i input.png -s style.png -o output_dir -g GPU番号
 ```
 
-### Stylize an image with VGG
+### VGG実行サンプル
 ```
 python chainer-gogh.py -m vgg_chainer -i input.png -s style.png -o output_dir -g 0 --width 256
 ```
 
-### How to specify the model
+### モデルの指定方法
 ```
 -m nin
 ```
-It is possible to change from nin to vgg, vgg_chainer, googlenet or i2v. To do this, put the model file in the working directory, keeping the default file name.
+のninを、vgg, vgg_chainer, googlenet, i2vに切り替えることが可能。
+モデルファイルはディレクトリ直下に置いて、デフォルトの名前のまま変えないこと。
 
-### Generate multiple images simultaneously
-* First, create a file called input.txt and list the input and output file names:
+### 複数枚同時生成
+* まず、input.txtというファイル名で、以下の様なファイルを作る。
 ```
 input0.png style0.png
 input1.png style1.png
 ...
 ```
-then, run chainer-gogh-multi.py:
+そして、chainer-gogh-multi.pyの方を実行
 ```
 python chainer-gogh-multi.py -i input.txt
 ```
-The VGG model uses a lot of GPU memory, be careful!
+VGGを使うときはGPUのメモリ不足に注意
 
-## About the parameters
-* `--lr`: learning rate. Increase this when the generation progress is slow.
-* `--lam`: increase to make the output image similar to the input, decrease to add more style.
-* alpha, beta: coefficients relating to the error propagated from each layer. They are hard coded for each model.
+## パラメタについて
+* `--lr`: 学習速度。生成の進捗が遅い時は大きめにする
+* `--lam`: これを上げるとinput画像に近くなり、下げるとstyle画像に近くなる
+* alpha, beta: 各層から伝播させる誤差にかかる係数。models.pyの中でハードコードされている。
 
-## Advice
-* At the moment, using square images (e.g. 256x256) is best.
+## 注意
+* 現在のところ画像は正方形に近いほうがいいです
