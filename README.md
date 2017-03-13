@@ -75,7 +75,7 @@ python chainer-gogh.py -m vgg_chainer -i input.png -s style.png -o output_dir -g
 It is possible to change from nin to vgg, vgg_chainer, googlenet or i2v. To do this, put the model file in the working directory, keeping the default file name.
 
 ### Generate multiple images simultaneously
-* First, createa file called input.txt and list the input and output file names:
+* First, create a file called input.txt and list the input and output file names:
 ```
 input0.png style0.png
 input1.png style1.png
