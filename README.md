@@ -1,7 +1,7 @@
 # chainer-gogh
 
 ## Implementation of "A neural algorithm of Artistic style" (http://arxiv.org/abs/1508.06576)
-## 解説記事: https://research.preferred.jp/2015/09/chainer-gogh/
+## Accompanying article: https://research.preferred.jp/2015/09/chainer-gogh/
 
 <img src="https://raw.githubusercontent.com/mattya/chainer-gogh/master/sample_images/cat.png" height="150px">
 
@@ -26,16 +26,16 @@
 <img src="https://raw.githubusercontent.com/mattya/chainer-gogh/master/sample_images/style_7.png" height="150px">
 <img src="https://raw.githubusercontent.com/mattya/chainer-gogh/master/sample_images/im7.png" height="150px">
 
-(VGG, lam=0.0075, after 5000 iteration)
+(VGG, lam=0.0075, after 5000 iterations)
 
 ## Usage:
-### Chainerをインストール
+### Install Chainer
 ```
 pip install chainer
 ```
-詳しくはhttps://github.com/pfnet/chainer
+See https://github.com/pfnet/chainer for details.
 
-### モデルをダウンロード
+### Download the model
 * NIN https://gist.github.com/mavenlin/d802a5849de39225bcc6
 
 お手軽。(`-m nin`)
@@ -52,45 +52,45 @@ NIN並に軽く、ポテンシャルもあるはずだが、最適なパラメ�
 
 VGGより軽く、二次元画像にとても強いはずだが、最適なパラメタがわかってない。(`-m i2v`)
 
-### CPU実行
+### Run on CPU
 ```
 python chainer-gogh.py -m nin -i input.png -s style.png -o output_dir -g -1
 ```
 
-### GPU実行
+### Run on GPU
 ```
 python chainer-gogh.py -m nin -i input.png -s style.png -o output_dir -g GPU番号
 ```
 
-### VGG実行サンプル
+### Stylize an image with VGG
 ```
 python chainer-gogh.py -m vgg_chainer -i input.png -s style.png -o output_dir -g 0 --width 256
 ```
 
-### モデルの指定方法
+### How to specify the model
 ```
 -m nin
 ```
 のninを、vgg, vgg_chainer, googlenet, i2vに切り替えることが可能。
 モデルファイルはディレクトリ直下に置いて、デフォルトの名前のまま変えないこと。
 
-### 複数枚同時生成
-* まず、input.txtというファイル名で、以下の様なファイルを作る。
+### Generate multiple images simultaneously
+* First, createa file called input.txt and list the input and output file names:
 ```
 input0.png style0.png
 input1.png style1.png
 ...
 ```
-そして、chainer-gogh-multi.pyの方を実行
+then, run chainer-gogh-multi.py:
 ```
 python chainer-gogh-multi.py -i input.txt
 ```
-VGGを使うときはGPUのメモリ不足に注意
+The VGG model uses a lot of GPU memory.
 
-## パラメタについて
-* `--lr`: 学習速度。生成の進捗が遅い時は大きめにする
-* `--lam`: これを上げるとinput画像に近くなり、下げるとstyle画像に近くなる
-* alpha, beta: 各層から伝播させる誤差にかかる係数。models.pyの中でハードコードされている。
+## About the parameters
+* `--lr`: learning rate. Increase this when the generation progress is slow.
+* `--lam`: increase the make the output image similar to the input, decrease to add more style.
+* alpha, beta: coefficients relating to the error propagated from each layer. They are hard coded for each model.
 
-## 注意
-* 現在のところ画像は正方形に近いほうがいいです
+## Advice
+* At the moment, using square images (e.g. 32x32) is best.
