@@ -90,7 +90,7 @@ The VGG model uses a lot of GPU memory, be careful!
 
 ## About the parameters
 * `--lr`: learning rate. Increase this when the generation progress is slow.
-* `--lam`: increase the make the output image similar to the input, decrease to add more style.
+* `--lam`: increase to make the output image similar to the input, decrease to add more style.
 * alpha, beta: coefficients relating to the error propagated from each layer. They are hard coded for each model.
 
 ## Advice
