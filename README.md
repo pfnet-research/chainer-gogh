@@ -1,6 +1,6 @@
 # chainer-gogh
 
-## Implementation of "A neural algorithm of Artistic style" (http://arxiv.org/abs/1508.06576)
+## Implementation of "A neural algorithm of Artistic style" (http://arxiv.org/abs/1508.06576) in Chainer.
 ## Accompanying article: https://research.preferred.jp/2015/09/chainer-gogh/
 
 <img src="https://raw.githubusercontent.com/mattya/chainer-gogh/master/sample_images/cat.png" height="150px">
@@ -35,22 +35,24 @@ pip install chainer
 ```
 See https://github.com/pfnet/chainer for details.
 
-### Download the model
+### Download the model(s)
+There are multiple models to chose from:
 * NIN https://gist.github.com/mavenlin/d802a5849de39225bcc6
 
-お手軽。(`-m nin`)
+Simply specify: (`-m nin`)
 * VGG https://gist.github.com/ksimonyan/211839e770f7b538e2d8#file-readme-md
 
-きれいな絵がかけるがとても重い。(`-m vgg`, `-m vgg_chainer`)
-vgg_chainerではモデルのダウンロードの必要はなく、初回を除いて非常に高速でロードできるようになります(chainer 1.19以降で動作)。
+With VGG, it takes a long time to make good looking images. (`-m vgg`, `-m vgg_chainer`)
+
+After downloading and using the vgg_chainer model for the first time, all subsequent uses will load the model very fast.(functionality available in chainer 1.19 and above).
 
 * GoogLeNet https://github.com/BVLC/caffe/tree/master/models/bvlc_googlenet
 
-NIN並に軽く、ポテンシャルもあるはずだが、最適なパラメタがわかっていない。(`-m googlenet`)
+About the same as NIN, but there should be potential for good images. The optimum parameters are unknown. (`-m googlenet`)
 
 * illustration2vec http://illustration2vec.net/   (pre-trained model for tag prediction, version 2.0)
 
-VGGより軽く、二次元画像にとても強いはずだが、最適なパラメタがわかってない。(`-m i2v`)
+Lightweight compared to VGG, should be good for illustrations/anime drawings. Optimal parameters are unknown. (`-m i2v`)
 
 ### Run on CPU
 ```
@@ -59,7 +61,7 @@ python chainer-gogh.py -m nin -i input.png -s style.png -o output_dir -g -1
 
 ### Run on GPU
 ```
-python chainer-gogh.py -m nin -i input.png -s style.png -o output_dir -g GPU番号
+python chainer-gogh.py -m nin -i input.png -s style.png -o output_dir -g <GPU number>
 ```
 
 ### Stylize an image with VGG
@@ -71,8 +73,7 @@ python chainer-gogh.py -m vgg_chainer -i input.png -s style.png -o output_dir -g
 ```
 -m nin
 ```
-のninを、vgg, vgg_chainer, googlenet, i2vに切り替えることが可能。
-モデルファイルはディレクトリ直下に置いて、デフォルトの名前のまま変えないこと。
+It is possible to change from nin to vgg, vgg_chainer, googlenet or i2v. To do this, put the model file in the working directory, keeping the default file name.
 
 ### Generate multiple images simultaneously
 * First, createa file called input.txt and list the input and output file names:
@@ -85,7 +86,7 @@ then, run chainer-gogh-multi.py:
 ```
 python chainer-gogh-multi.py -i input.txt
 ```
-The VGG model uses a lot of GPU memory.
+The VGG model uses a lot of GPU memory, be careful!
 
 ## About the parameters
 * `--lr`: learning rate. Increase this when the generation progress is slow.
